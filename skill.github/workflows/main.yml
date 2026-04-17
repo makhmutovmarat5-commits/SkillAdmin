@@ -1,0 +1,28 @@
+name: Build Android APK
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Install Apktool
+        run: |
+          mkdir -p bin
+          wget https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar -O bin/apktool.jar
+      - name: Build APK
+        run: |
+          mkdir -p res/values res/drawable
+          echo '<?xml version="1.0" encoding="utf-8"?><resources><string name="app_name">SkillAdmin</string></resources>' > res/values/strings.xml
+          # Создаем пустую иконку
+          printf '\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n\x2d\xb4\x00\x00\x00\x00IEND\xaeB`\x82' > res/drawable/icon.png
+          java -jar bin/apktool.jar b . -o SkillAdmin.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: skill-apk
+          path: SkillAdmin.apk
